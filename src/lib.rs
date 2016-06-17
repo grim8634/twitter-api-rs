@@ -32,9 +32,16 @@ mod api_twitter_soft {
 }
 
 #[derive(Clone, Debug, RustcEncodable, RustcDecodable)]
+pub struct TwitterUser {
+    pub screen_name: String,
+}
+
+#[derive(Clone, Debug, RustcEncodable, RustcDecodable)]
 pub struct Tweet {
     pub created_at: String,
     pub text: String,
+    pub id: u64,
+    pub user: TwitterUser,
 }
 
 impl Tweet {
