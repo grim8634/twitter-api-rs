@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Error",""]],"fn":[["get_access_token",""],["get_authorize_url",""],["get_last_tweets",""],["get_request_token",""],["update_status","function to update the status This function takes as arguments the consumer key, the access key, and the status (obviously)"]],"struct":[["Tweet",""]]});
