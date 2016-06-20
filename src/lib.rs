@@ -27,6 +27,7 @@ mod api_twitter_oauth {
 
 mod api_twitter_soft {
     pub const UPDATE_STATUS: &'static str = "https://api.twitter.com/1.1/statuses/update.json";
+    pub const DIRECT_MESSAGE: &'static str = "https://api.twitter.com/1.1/direct_messages/new.json";
     pub const HOME_TIMELINE: &'static str = "https://api.twitter.com/1.1/statuses/home_timeline.\
                                              json";
 }
@@ -106,6 +107,18 @@ pub fn update_status(consumer: &Token, access: &Token, status: &str) -> Result<(
                              Some(&param)));
     Ok(())
 }
+
+pub fn direct_message(consumer: &Token, access: &Token, text: &str, screen_name: &str) -> Result<(), Error> {
+    let mut param = HashMap::new();
+    let _ = param.insert("text".into(), text.into());
+    let _ = param.insert("screen_name".into(), screen_name.into());
+    let _ = try!(oauth::post(api_twitter_soft::DIRECT_MESSAGE,
+                             consumer,
+                             Some(access),
+                             Some(&param)));
+    Ok(())
+}
+
 
 pub fn get_last_tweets(consumer: &Token, access: &Token) -> Result<Vec<Tweet>, Error> {
     let bytes = try!(oauth::get(api_twitter_soft::HOME_TIMELINE,
