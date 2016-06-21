@@ -29,6 +29,7 @@ mod api_twitter_soft {
     pub const UPDATE_STATUS: &'static str = "https://api.twitter.com/1.1/statuses/update.json";
     pub const DIRECT_MESSAGE: &'static str = "https://api.twitter.com/1.1/direct_messages/new.json";
     pub const DIRECT_MESSAGES: &'static str = "https://api.twitter.com/1.1/direct_messages.json";
+    pub const DESTROY_STATUS: &'static str = "https://api.twitter.com/1.1/statuses/destroy/";
     pub const HOME_TIMELINE: &'static str = "https://api.twitter.com/1.1/statuses/home_timeline.\
                                              json";
 }
@@ -131,6 +132,15 @@ pub fn direct_message(consumer: &Token, access: &Token, text: &str, screen_name:
     let _ = param.insert("text".into(), text.into());
     let _ = param.insert("screen_name".into(), screen_name.into());
     let _ = try!(oauth::post(api_twitter_soft::DIRECT_MESSAGE,
+                             consumer,
+                             Some(access),
+                             Some(&param)));
+    Ok(())
+}
+
+pub fn destroy_status(consumer: &Token, access: &Token, id: &u64) -> Result<(), Error> {
+    let mut param = HashMap::new();
+    let _ = try!(oauth::post(format!("{}{}.json", api_twitter_soft::DESTROY_STATUS, id).as_str(),
                              consumer,
                              Some(access),
                              Some(&param)));
