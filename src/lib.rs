@@ -28,6 +28,7 @@ mod api_twitter_oauth {
 mod api_twitter_soft {
     pub const UPDATE_STATUS: &'static str = "https://api.twitter.com/1.1/statuses/update.json";
     pub const DIRECT_MESSAGE: &'static str = "https://api.twitter.com/1.1/direct_messages/new.json";
+    pub const DIRECT_MESSAGES: &'static str = "https://api.twitter.com/1.1/direct_messages.json";
     pub const HOME_TIMELINE: &'static str = "https://api.twitter.com/1.1/statuses/home_timeline.\
                                              json";
 }
@@ -45,6 +46,14 @@ pub struct Tweet {
     pub user: TwitterUser,
 }
 
+#[derive(Clone, Debug, RustcEncodable, RustcDecodable)]
+pub struct DirectMessage {
+    pub created_at: String,
+    pub text: String,
+    pub id: u64,
+    pub sender_screen_name: String,
+}
+
 impl Tweet {
     pub fn parse_timeline(json_string: String) -> Result<Vec<Tweet>, Error> {
         let conf = try!(Json::from_str(&json_string));
@@ -52,6 +61,15 @@ impl Tweet {
         Ok(d)
     }
 }
+
+impl DirectMessage {
+    pub fn parse_timeline(json_string: String) -> Result<Vec<DirectMessage>, Error> {
+        let conf = try!(Json::from_str(&json_string));
+        let d = try!(Decodable::decode(&mut json::Decoder::new(conf)));
+        Ok(d)
+    }
+}
+
 
 fn split_query<'a>(query: &'a str) -> HashMap<Cow<'a, str>, Cow<'a, str>> {
     let mut param = HashMap::new();
@@ -119,6 +137,15 @@ pub fn direct_message(consumer: &Token, access: &Token, text: &str, screen_name:
     Ok(())
 }
 
+pub fn get_direct_messages(consumer: &Token, access: &Token) -> Result<Vec<DirectMessage>, Error> {
+    let bytes = try!(oauth::get(api_twitter_soft::DIRECT_MESSAGES,
+                                consumer,
+                                Some(access),
+                                None));
+    let last_tweets_json = try!(String::from_utf8(bytes));
+    let ts = try!(DirectMessage::parse_timeline(last_tweets_json));
+    Ok(ts)
+}
 
 pub fn get_last_tweets(consumer: &Token, access: &Token) -> Result<Vec<Tweet>, Error> {
     let bytes = try!(oauth::get(api_twitter_soft::HOME_TIMELINE,
