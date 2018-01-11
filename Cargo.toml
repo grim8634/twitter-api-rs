@@ -10,5 +10,7 @@ description = "Unofficial Rust library for the Twitter API."
 documentation = "https://gifnksm.github.io/twitter-api-rs"
 
 [dependencies]
-oauth-client = "0.1"
+oauth-client = "0.3.2"
 rustc-serialize = "0.3"
+log = "0.3"
+env_logger = "0.3"

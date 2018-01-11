@@ -6,6 +6,8 @@
 #![warn(unused_qualifications)]
 #![warn(unused_results)]
 
+#[macro_use]
+extern crate log;
 extern crate oauth_client as oauth;
 extern crate rustc_serialize as rustc_serialize;
 
@@ -30,8 +32,7 @@ mod api_twitter_soft {
     pub const DIRECT_MESSAGE: &'static str = "https://api.twitter.com/1.1/direct_messages/new.json";
     pub const DIRECT_MESSAGES: &'static str = "https://api.twitter.com/1.1/direct_messages.json";
     pub const DESTROY_STATUS: &'static str = "https://api.twitter.com/1.1/statuses/destroy/";
-    pub const HOME_TIMELINE: &'static str = "https://api.twitter.com/1.1/statuses/home_timeline.\
-                                             json";
+    pub const HOME_TIMELINE: &'static str = "https://api.twitter.com/1.1/statuses/home_timeline.json";
 }
 
 #[derive(Clone, Debug, RustcEncodable, RustcDecodable)]
@@ -42,7 +43,7 @@ pub struct TwitterUser {
 #[derive(Clone, Debug, RustcEncodable, RustcDecodable)]
 pub struct Tweet {
     pub created_at: String,
-    pub text: String,
+    pub full_text: String,
     pub id: u64,
     pub user: TwitterUser,
 }
@@ -139,7 +140,7 @@ pub fn direct_message(consumer: &Token, access: &Token, text: &str, screen_name:
 }
 
 pub fn destroy_status(consumer: &Token, access: &Token, id: &u64) -> Result<(), Error> {
-    let mut param = HashMap::new();
+    let param = HashMap::new();
     let _ = try!(oauth::post(format!("{}{}.json", api_twitter_soft::DESTROY_STATUS, id).as_str(),
                              consumer,
                              Some(access),
@@ -158,10 +159,13 @@ pub fn get_direct_messages(consumer: &Token, access: &Token) -> Result<Vec<Direc
 }
 
 pub fn get_last_tweets(consumer: &Token, access: &Token) -> Result<Vec<Tweet>, Error> {
+    let mut param = HashMap::new();
+    let _ = param.insert("tweet_mode".into(), "extended".into());
+
     let bytes = try!(oauth::get(api_twitter_soft::HOME_TIMELINE,
                                 consumer,
                                 Some(access),
-                                None));
+                                Some(&param)));
     let last_tweets_json = try!(String::from_utf8(bytes));
     let ts = try!(Tweet::parse_timeline(last_tweets_json));
     Ok(ts)
